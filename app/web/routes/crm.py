@@ -18,6 +18,8 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("", response_class=HTMLResponse)
 def crm_home(request: Request) -> HTMLResponse:
     return RedirectResponse(url="/crm/leads", status_code=302)
+
+
 @router.get("/leads", response_class=HTMLResponse)
 def crm_leads(
     request: Request,
@@ -26,15 +28,20 @@ def crm_leads(
 ) -> HTMLResponse:
     leads = list_leads(db, limit=200, offset=0, stage=stage)
     notifications = list_notifications(db, limit=20, offset=0, unread_only=True)
+
     return templates.TemplateResponse(
+        request,
         "crm/leads.html",
-        {"request": request,
+        {
+            "request": request,
             "leads": leads,
             "stage": stage,
             "notifications": notifications,
             "active": "leads",
         },
     )
+
+
 @router.post("/leads/{lead_id}/stage")
 def crm_set_stage(
     lead_id: int,
@@ -55,11 +62,15 @@ def crm_notifications(
 ) -> HTMLResponse:
     notifications = list_notifications(db, limit=200, offset=0, unread_only=unread_only, topic=None)
     return templates.TemplateResponse(
-        "crm/notifications.html",
-        {"request": request, "notifications": notifications, "unread_only": unread_only, "active": "notifications"},
+        name="crm/notifications.html",
+        request=request,
+        context={
+            "request": request,
+            "notifications": notifications,
+            "unread_only": unread_only,
+            "active": "notifications",
+        },
     )
-
-
 @router.post("/notifications/{notification_id}/read")
 def crm_mark_notification_read(
     notification_id: int,
@@ -71,4 +82,3 @@ def crm_mark_notification_read(
     if n:
         update_notification(db, n, read=(read.lower() == "true"))
     return RedirectResponse(url=next, status_code=303)
-
