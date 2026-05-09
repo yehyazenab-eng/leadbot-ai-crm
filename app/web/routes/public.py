@@ -19,7 +19,11 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/lead", response_class=HTMLResponse)
 def lead_form(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("public/lead.html", {"request": request})
+    return templates.TemplateResponse(
+        name="public/lead.html",
+        request=request,
+        context={"request": request},
+    )
 
 
 @router.post("/lead")
@@ -31,12 +35,24 @@ def submit_lead(
 ):
     summary = generate_lead_summary(name=name, phone=phone, request=request)
     score = score_lead(request=request)
-    lead = create_lead(db, name=name, phone=phone, email="", request=request, summary=summary, score=score, source="web")
+    lead = create_lead(
+        db,
+        name=name,
+        phone=phone,
+        email="",
+        request=request,
+        summary=summary,
+        score=score,
+        source="web",
+    )
     notify_lead_event("created", lead.id, lead.name, lead.phone, lead.request)
     return RedirectResponse(url=f"/lead/thanks?lead_id={lead.id}", status_code=303)
 
 
 @router.get("/lead/thanks", response_class=HTMLResponse)
 def lead_thanks(request: Request, lead_id: Optional[int] = None) -> HTMLResponse:
-    return templates.TemplateResponse("public/thanks.html", {"request": request, "lead_id": lead_id})
-
+    return templates.TemplateResponse(
+        name="public/thanks.html",
+        request=request,
+        context={"request": request, "lead_id": lead_id},
+    )
