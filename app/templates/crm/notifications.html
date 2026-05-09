@@ -1,0 +1,35 @@
+{% extends "crm/base.html" %}
+{% block content %}
+  <div class="card" style="margin-top: 14px;">
+    <h2>Notifications{% if unread_only %} • unread only{% endif %}</h2>
+    <div class="muted small" style="margin-bottom: 10px;">
+      <a class="tag" href="/crm/notifications">all</a>
+      <a class="tag" href="/crm/notifications?unread_only=true">unread</a>
+    </div>
+    <div class="list">
+      {% for n in notifications %}
+        <div class="notif">
+          <div class="title">
+            {% if n.read %}
+              <span class="tag">read</span>
+            {% else %}
+              <span class="tag new">unread</span>
+            {% endif %}
+            {{ n.title }}
+            <span class="muted small">• {{ n.created_at }}</span>
+          </div>
+          <div class="body">{{ n.body }}</div>
+          <form method="post" action="/crm/notifications/{{ n.id }}/read" style="margin-top: 8px;">
+            <input type="hidden" name="read" value="{{ 'false' if n.read else 'true' }}" />
+            <input type="hidden" name="next" value="/crm/notifications{% if unread_only %}?unread_only=true{% endif %}" />
+            <button type="submit">{{ "Mark unread" if n.read else "Mark read" }}</button>
+          </form>
+        </div>
+      {% endfor %}
+      {% if notifications|length == 0 %}
+        <div class="muted">No notifications yet.</div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+

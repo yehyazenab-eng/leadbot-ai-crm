@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact us</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070a12;
+        --panel: rgba(255, 255, 255, 0.06);
+        --border: rgba(255, 255, 255, 0.14);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.70);
+        --accent: #7c3aed;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        background: radial-gradient(1200px 700px at 10% 10%, rgba(124, 58, 237, 0.26), transparent 45%),
+          radial-gradient(900px 520px at 90% 10%, rgba(34, 197, 94, 0.16), transparent 40%),
+          linear-gradient(180deg, #050711, var(--bg));
+        color: var(--text);
+        padding: 24px;
+      }
+      .card {
+        width: 100%;
+        max-width: 560px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--panel);
+        backdrop-filter: blur(12px);
+        padding: 18px;
+      }
+      h1 {
+        margin: 0 0 6px 0;
+        font-size: 22px;
+        letter-spacing: 0.2px;
+      }
+      p {
+        margin: 0 0 14px 0;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 12px 0 6px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--text);
+        outline: none;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 110px;
+      }
+      input:focus,
+      textarea:focus {
+        border-color: rgba(124, 58, 237, 0.65);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.18);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 560px) {
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 14px;
+      }
+      button {
+        border-radius: 12px;
+        border: 1px solid rgba(124, 58, 237, 0.6);
+        background: rgba(124, 58, 237, 0.28);
+        color: var(--text);
+        padding: 10px 14px;
+        font-weight: 650;
+        cursor: pointer;
+      }
+      button:hover {
+        background: rgba(124, 58, 237, 0.38);
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .foot {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      a {
+        color: rgba(220, 200, 255, 0.95);
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Leave your details</h1>
+      <p>We’ll get back to you shortly.</p>
+
+      <form method="post" action="/lead">
+        <div class="row">
+          <div>
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Your name" autocomplete="name" />
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              placeholder="050-123-4567"
+              autocomplete="tel"
+              required
+            />
+          </div>
+        </div>
+
+        <label for="request">What do you need?</label>
+        <textarea id="request" name="request" placeholder="Tell us what you’re looking for..." required></textarea>
+
+        <div class="actions">
+          <button type="submit">Submit</button>
+          <span class="hint">Saved directly to our CRM.</span>
+        </div>
+      </form>
+
+      <div class="foot">
+        Internal: <a href="/crm/leads">CRM</a>
+      </div>
+    </div>
+  </body>
+</html>
+

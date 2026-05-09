@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title or "LeadBot CRM" }}</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b1020;
+        --panel: rgba(255, 255, 255, 0.06);
+        --border: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.70);
+        --accent: #7c3aed;
+        --ok: #22c55e;
+        --warn: #f59e0b;
+        --bad: #ef4444;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+        background: radial-gradient(1200px 600px at 10% 10%, rgba(124, 58, 237, 0.22), transparent 45%),
+          radial-gradient(900px 500px at 90% 10%, rgba(34, 197, 94, 0.18), transparent 40%),
+          linear-gradient(180deg, #070a12, var(--bg));
+        color: var(--text);
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 14px;
+        backdrop-filter: blur(12px);
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pill {
+        font-size: 12px;
+        padding: 2px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+      }
+      .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .nav a {
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        color: var(--muted);
+      }
+      .nav a.active {
+        border-color: var(--border);
+        background: rgba(124, 58, 237, 0.14);
+        color: var(--text);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 14px;
+        padding: 14px;
+      }
+      .card h2 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        vertical-align: top;
+      }
+      tbody tr:hover td {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      th {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .tag {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        display: inline-block;
+      }
+      .tag.new { border-color: rgba(124, 58, 237, 0.45); color: rgba(220, 200, 255, 0.95); }
+      .tag.contacted { border-color: rgba(245, 158, 11, 0.45); color: rgba(255, 230, 180, 0.95); }
+      .tag.won { border-color: rgba(34, 197, 94, 0.45); color: rgba(200, 255, 220, 0.95); }
+      .tag.lost { border-color: rgba(239, 68, 68, 0.45); color: rgba(255, 200, 200, 0.95); }
+      .badge {
+        font-size: 12px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 650;
+        letter-spacing: 0.1px;
+        white-space: nowrap;
+      }
+      .badge.priority.high {
+        border-color: rgba(245, 158, 11, 0.55);
+        background: rgba(245, 158, 11, 0.18);
+        color: rgba(255, 230, 180, 0.98);
+      }
+      .badge.priority.medium {
+        border-color: rgba(245, 158, 11, 0.40);
+        background: rgba(245, 158, 11, 0.10);
+        color: rgba(255, 238, 180, 0.95);
+      }
+      .badge.priority.low {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.72);
+      }
+      .row-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      select, button, input[type="text"] {
+        font: inherit;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--text);
+        padding: 8px 10px;
+      }
+      button {
+        cursor: pointer;
+      }
+      button.primary {
+        border-color: rgba(124, 58, 237, 0.55);
+        background: rgba(124, 58, 237, 0.25);
+      }
+      .small {
+        font-size: 12px;
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .notif {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.12);
+      }
+      .notif .title {
+        font-weight: 650;
+        margin-bottom: 4px;
+      }
+      .notif .body {
+        white-space: pre-wrap;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .footer {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <div class="brand">
+          <span>LeadBot</span>
+          <span class="pill">CRM</span>
+        </div>
+        <div class="nav">
+          <a href="/crm/leads" class="{{ 'active' if active == 'leads' else '' }}">Leads</a>
+          <a href="/crm/notifications" class="{{ 'active' if active == 'notifications' else '' }}">Notifications</a>
+          <a href="/docs" target="_blank" rel="noreferrer">API Docs</a>
+        </div>
+      </div>
+
+      {% block content %}{% endblock %}
+
+      <div class="footer">
+        LeadBot CRM • FastAPI • SQLite
+      </div>
+    </div>
+  </body>
+</html>
+
