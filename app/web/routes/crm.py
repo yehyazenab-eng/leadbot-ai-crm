@@ -28,7 +28,8 @@ def crm_leads(
 ) -> HTMLResponse:
     leads = list_leads(db, limit=200, offset=0, stage=stage)
     notifications = list_notifications(db, limit=20, offset=0, unread_only=True, topic="lead")
-    return templates.TemplateResponse(
+       return templates.TemplateResponse(
+        request,
         "crm/leads.html",
         {
             "request": request,
@@ -36,10 +37,8 @@ def crm_leads(
             "stage": stage,
             "notifications": notifications,
             "active": "leads",
-        },
+        },,
     )
-
-
 @router.post("/leads/{lead_id}/stage")
 def crm_set_stage(
     lead_id: int,
