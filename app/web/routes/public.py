@@ -31,10 +31,12 @@ def submit_lead(
     name: str = Form(""),
     phone: str = Form(...),
     request: str = Form(...),
+    source: str = Form("website"),
     db: Session = Depends(get_db),
 ):
     summary = generate_lead_summary(name=name, phone=phone, request=request)
     score = score_lead(request=request)
+
     lead = create_lead(
         db,
         name=name,
@@ -43,8 +45,9 @@ def submit_lead(
         request=request,
         summary=summary,
         score=score,
-        source="web",
+        source=source,
     )
+
     notify_lead_event("created", lead.id, lead.name, lead.phone, lead.request)
     return RedirectResponse(url=f"/lead/thanks?lead_id={lead.id}", status_code=303)
 
@@ -56,3 +59,4 @@ def lead_thanks(request: Request, lead_id: Optional[int] = None) -> HTMLResponse
         request=request,
         context={"request": request, "lead_id": lead_id},
     )
+    
