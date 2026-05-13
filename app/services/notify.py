@@ -12,9 +12,6 @@ from app.crud.notifications import create_notification
 from app.db.session import SessionLocal
 
 
-CRM_URL = os.environ.get("CRM_URL", "https://leadbot-ai-crm.onrender.com/crm/leads")
-
-
 def notify_console(title: str, body: str) -> None:
     print(f"[notify] {title}\n{body}\n")
 
@@ -42,9 +39,9 @@ def notify_webhook(payload: dict) -> None:
         print(f"[notify_webhook_failed] {error}")
 
 
-def notify_email(subject: str, body: str) -> None:
+def notify_email_smtp(subject: str, body: str) -> None:
     if not (settings.smtp_host and settings.smtp_from and settings.smtp_to):
-        print("[notify_email] SMTP settings missing. Email was not sent.")
+        print("[notify_email_smtp] SMTP settings missing. SMTP email was not sent.")
         return
 
     msg = EmailMessage()
@@ -62,10 +59,61 @@ def notify_email(subject: str, body: str) -> None:
 
             smtp.send_message(msg)
 
-        print(f"[notify_email] Email sent to {settings.smtp_to}")
+        print(f"[notify_email_smtp] Email sent to {settings.smtp_to}")
 
     except Exception as error:
-        print(f"[notify_email_failed] {error}")
+        print(f"[notify_email_smtp_failed] {error}")
+
+
+def notify_email_resend(subject: str, body: str) -> None:
+    api_key = settings.resend_api_key.strip()
+    to_email = settings.alert_email_to.strip()
+    from_email = settings.alert_email_from.strip()
+
+    if not api_key:
+        print("[notify_email_resend] RESEND_API_KEY missing. Resend email was not sent.")
+        return
+
+    if not to_email:
+        print("[notify_email_resend] ALERT_EMAIL_TO missing. Resend email was not sent.")
+        return
+
+    payload = {
+        "from": from_email,
+        "to": [to_email],
+        "subject": subject,
+        "text": body,
+    }
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        with httpx.Client(timeout=15.0) as client:
+            response = client.post(
+                "https://api.resend.com/emails",
+                json=payload,
+                headers=headers,
+            )
+
+        if response.status_code >= 400:
+            print(f"[notify_email_resend_failed] {response.status_code} {response.text}")
+            return
+
+        print(f"[notify_email_resend] Email sent to {to_email}")
+
+    except Exception as error:
+        print(f"[notify_email_resend_failed] {error}")
+
+
+def notify_email(subject: str, body: str) -> None:
+    if settings.resend_api_key:
+        notify_email_resend(subject, body)
+        return
+
+    notify_email_smtp(subject, body)
 
 
 def notify_lead_event(event: str, lead_id: int, name: str, phone: str, request: str) -> None:
@@ -78,7 +126,7 @@ def notify_lead_event(event: str, lead_id: int, name: str, phone: str, request: 
         f"Phone: {phone or 'Missing'}\n"
         f"Request: {request or 'No request'}\n\n"
         f"Open CRM:\n"
-        f"{CRM_URL}\n"
+        f"{settings.crm_url}\n"
     )
 
     try:
@@ -99,7 +147,7 @@ def notify_lead_event(event: str, lead_id: int, name: str, phone: str, request: 
             "name": name,
             "phone": phone,
             "request": request,
-            "crm_url": CRM_URL,
+            "crm_url": settings.crm_url,
         }
     )
 

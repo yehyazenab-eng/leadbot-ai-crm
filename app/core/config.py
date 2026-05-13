@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     smtp_from: str = ""
     smtp_to: str = ""
 
+    resend_api_key: str = ""
+    alert_email_from: str = "LeadBot <onboarding@resend.dev>"
+    alert_email_to: str = ""
+
+    crm_url: str = "https://leadbot-ai-crm.onrender.com/crm/leads"
+
     ai_provider: str = "rules"  # rules | openai
     openai_api_key: str = ""
     openai_model: str = "gpt-4.1-mini"
@@ -28,4 +34,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
