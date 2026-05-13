@@ -1,7 +1,114 @@
 {% extends "crm/base.html" %}
 {% block content %}
+  {% set ns = namespace(high=0, new=0, contacted=0, won=0, lost=0, instagram=0, tiktok=0, facebook=0, google=0, website=0, friend=0, other=0, top_source="unknown", top_source_count=0) %}
+
+  {% for lead in leads %}
+    {% if (lead.score or "Low")|lower == "high" %}
+      {% set ns.high = ns.high + 1 %}
+    {% endif %}
+
+    {% if lead.stage == "new" %}
+      {% set ns.new = ns.new + 1 %}
+    {% elif lead.stage == "contacted" %}
+      {% set ns.contacted = ns.contacted + 1 %}
+    {% elif lead.stage == "won" %}
+      {% set ns.won = ns.won + 1 %}
+    {% elif lead.stage == "lost" %}
+      {% set ns.lost = ns.lost + 1 %}
+    {% endif %}
+
+    {% set source = (lead.source or "other")|lower %}
+    {% if source == "instagram" %}
+      {% set ns.instagram = ns.instagram + 1 %}
+    {% elif source == "tiktok" %}
+      {% set ns.tiktok = ns.tiktok + 1 %}
+    {% elif source == "facebook" %}
+      {% set ns.facebook = ns.facebook + 1 %}
+    {% elif source == "google" %}
+      {% set ns.google = ns.google + 1 %}
+    {% elif source == "website" or source == "web" %}
+      {% set ns.website = ns.website + 1 %}
+    {% elif source == "friend" %}
+      {% set ns.friend = ns.friend + 1 %}
+    {% else %}
+      {% set ns.other = ns.other + 1 %}
+    {% endif %}
+  {% endfor %}
+
+  {% if ns.instagram > ns.top_source_count %}
+    {% set ns.top_source = "Instagram" %}
+    {% set ns.top_source_count = ns.instagram %}
+  {% endif %}
+  {% if ns.tiktok > ns.top_source_count %}
+    {% set ns.top_source = "TikTok" %}
+    {% set ns.top_source_count = ns.tiktok %}
+  {% endif %}
+  {% if ns.facebook > ns.top_source_count %}
+    {% set ns.top_source = "Facebook" %}
+    {% set ns.top_source_count = ns.facebook %}
+  {% endif %}
+  {% if ns.google > ns.top_source_count %}
+    {% set ns.top_source = "Google" %}
+    {% set ns.top_source_count = ns.google %}
+  {% endif %}
+  {% if ns.website > ns.top_source_count %}
+    {% set ns.top_source = "Website" %}
+    {% set ns.top_source_count = ns.website %}
+  {% endif %}
+  {% if ns.friend > ns.top_source_count %}
+    {% set ns.top_source = "Friend" %}
+    {% set ns.top_source_count = ns.friend %}
+  {% endif %}
+  {% if ns.other > ns.top_source_count %}
+    {% set ns.top_source = "Other" %}
+    {% set ns.top_source_count = ns.other %}
+  {% endif %}
+
   <div class="grid">
     <div class="card">
+      <h2>Growth Insights</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px;">
+        <div style="padding: 12px; border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; background: rgba(255,255,255,0.04);">
+          <div class="muted small">Top Source</div>
+          <div style="font-size: 20px; font-weight: 700; margin-top: 4px;">{{ ns.top_source }}</div>
+          <div class="muted small">{{ ns.top_source_count }} leads</div>
+        </div>
+
+        <div style="padding: 12px; border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; background: rgba(255,255,255,0.04);">
+          <div class="muted small">High Priority</div>
+          <div style="font-size: 20px; font-weight: 700; margin-top: 4px;">{{ ns.high }}</div>
+          <div class="muted small">hot leads</div>
+        </div>
+
+        <div style="padding: 12px; border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; background: rgba(255,255,255,0.04);">
+          <div class="muted small">New Leads</div>
+          <div style="font-size: 20px; font-weight: 700; margin-top: 4px;">{{ ns.new }}</div>
+          <div class="muted small">need attention</div>
+        </div>
+
+        <div style="padding: 12px; border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; background: rgba(255,255,255,0.04);">
+          <div class="muted small">Won Deals</div>
+          <div style="font-size: 20px; font-weight: 700; margin-top: 4px;">{{ ns.won }}</div>
+          <div class="muted small">closed leads</div>
+        </div>
+      </div>
+
+      <div style="padding: 12px; border: 1px solid rgba(124,58,237,0.35); border-radius: 14px; background: rgba(124,58,237,0.10); margin-bottom: 18px;">
+        <div style="font-weight: 700; margin-bottom: 4px;">Recommended Action</div>
+        <div class="muted small">
+          {% if ns.high > 0 %}
+            Follow up with your {{ ns.high }} high-priority lead{% if ns.high > 1 %}s{% endif %} first.
+          {% elif ns.new > 0 %}
+            Contact your {{ ns.new }} new lead{% if ns.new > 1 %}s{% endif %} before they go cold.
+          {% elif ns.top_source_count > 0 %}
+            Your strongest source is {{ ns.top_source }}. Create more content/campaigns around this channel.
+          {% else %}
+            No leads yet. Share your public form and start tracking where demand comes from.
+          {% endif %}
+        </div>
+      </div>
+
       <h2>Leads{% if stage %} • stage={{ stage }}{% endif %}</h2>
       <div class="muted small" style="margin-bottom: 10px;">
         Filter:
@@ -108,3 +215,4 @@
     </div>
   </div>
 {% endblock %}
+  
