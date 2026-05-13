@@ -131,7 +131,7 @@
       <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px;">
         <div style="padding: 12px; border: 1px solid rgba(34,197,94,0.28); border-radius: 14px; background: rgba(34,197,94,0.08);">
           <div class="muted small">Money at Risk</div>
-          <div style="font-size: 22px; font-weight: 800; margin-top: 4px;">₪{{ "{:,}".format(ns.money_at_risk) }}</div>
+          <div style="font-size: 22px; font-weight: 800; margin-top: 4px;">{{ "{:,}".format(ns.money_at_risk) }} ILS</div>
           <div class="muted small">estimated open pipeline</div>
         </div>
 
@@ -152,7 +152,7 @@
         <div style="font-weight: 700; margin-bottom: 4px;">Best Next Move</div>
         <div class="muted small">
           {% if ns.high > 0 %}
-            Follow up with your {{ ns.high }} high-priority lead{% if ns.high > 1 %}s{% endif %} first. Estimated open money at risk: ₪{{ "{:,}".format(ns.money_at_risk) }}.
+            Follow up with your {{ ns.high }} high-priority lead{% if ns.high > 1 %}s{% endif %} first. Estimated open money at risk: {{ "{:,}".format(ns.money_at_risk) }} ILS.
           {% elif ns.new > 0 %}
             Contact your {{ ns.new }} new lead{% if ns.new > 1 %}s{% endif %} before they go cold. Start with leads from {{ ns.top_source }}.
           {% elif ns.top_source_count > 0 %}
@@ -184,6 +184,7 @@
             <th>Request</th>
             <th>Value</th>
             <th>Priority</th>
+            <th>Action</th>
             <th>Stage</th>
             <th>Update</th>
           </tr>
@@ -192,6 +193,9 @@
         <tbody>
           {% for lead in leads %}
             {% set lead_score = (lead.score or "Low")|lower %}
+            {% set lead_stage = lead.stage or "new" %}
+            {% set lead_source = (lead.source or "unknown")|lower %}
+
             {% if lead_score == "high" %}
               {% set lead_value = 1500 %}
             {% elif lead_score == "medium" %}
@@ -227,11 +231,33 @@
               </td>
 
               <td>
-                <span class="badge">₪{{ "{:,}".format(lead_value) }}</span>
+                <span class="badge">{{ "{:,}".format(lead_value) }} ILS</span>
               </td>
 
               <td>
-                <span class="badge priority {{ (lead.score or 'Low')|lower }}">{{ lead.score or "Low" }}</span>
+                <span class="badge priority {{ lead_score }}">{{ lead.score or "Low" }}</span>
+              </td>
+
+              <td class="small" style="max-width: 180px;">
+                {% if lead_stage == "new" and lead_score == "high" %}
+                  <span class="badge">Call now</span>
+                  <div class="muted" style="margin-top: 5px;">Hot new lead from {{ lead_source }}.</div>
+                {% elif lead_stage == "new" %}
+                  <span class="badge">Follow up</span>
+                  <div class="muted" style="margin-top: 5px;">New lead. Contact before it goes cold.</div>
+                {% elif lead_stage == "contacted" %}
+                  <span class="badge">Close next</span>
+                  <div class="muted" style="margin-top: 5px;">Already contacted. Push toward decision.</div>
+                {% elif lead_stage == "won" %}
+                  <span class="badge">Won</span>
+                  <div class="muted" style="margin-top: 5px;">Closed successfully.</div>
+                {% elif lead_stage == "lost" %}
+                  <span class="badge">Review</span>
+                  <div class="muted" style="margin-top: 5px;">Learn why this lead was lost.</div>
+                {% else %}
+                  <span class="badge">Check</span>
+                  <div class="muted" style="margin-top: 5px;">Review this lead manually.</div>
+                {% endif %}
               </td>
 
               <td>
@@ -254,7 +280,7 @@
 
           {% if leads|length == 0 %}
             <tr>
-              <td colspan="10" class="muted">No leads yet.</td>
+              <td colspan="11" class="muted">No leads yet.</td>
             </tr>
           {% endif %}
         </tbody>
