@@ -289,7 +289,8 @@
 
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                       <button type="button" onclick="copyReply('{{ reply_id }}', this)">Copy reply</button>
-                      <div class="muted small" style="white-space: nowrap;">Ready for WhatsApp follow-up</div>
+                      <button type="button" onclick="openWhatsApp('{{ lead.phone }}', '{{ reply_id }}')">Open WhatsApp</button>
+                      <div class="muted small" style="white-space: nowrap;">Prefilled WhatsApp reply</div>
                     </div>
                   </div>
                 </div>
@@ -348,6 +349,36 @@
           button.innerText = originalText;
         }, 1400);
       }
+    }
+
+    function normalizePhoneForWhatsApp(phone) {
+      let clean = String(phone || "").replace(/[^\d+]/g, "");
+
+      if (clean.startsWith("+")) {
+        clean = clean.slice(1);
+      }
+
+      if (clean.startsWith("0")) {
+        clean = "972" + clean.slice(1);
+      }
+
+      return clean;
+    }
+
+    function openWhatsApp(phone, replyId) {
+      const replyElement = document.getElementById(replyId);
+      if (!replyElement) return;
+
+      const cleanPhone = normalizePhoneForWhatsApp(phone);
+      const message = replyElement.innerText.trim();
+
+      if (!cleanPhone) {
+        alert("No phone number found for this lead.");
+        return;
+      }
+
+      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
     }
   </script>
 {% endblock %}
