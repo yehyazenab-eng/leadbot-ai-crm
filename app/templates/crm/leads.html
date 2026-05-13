@@ -195,6 +195,7 @@
             {% set lead_score = (lead.score or "Low")|lower %}
             {% set lead_stage = lead.stage or "new" %}
             {% set lead_source = (lead.source or "unknown")|lower %}
+            {% set reply_id = "reply-" ~ lead.id %}
 
             {% if lead_score == "high" %}
               {% set lead_value = 1500 %}
@@ -278,16 +279,17 @@
             <tr>
               <td colspan="11" style="padding-top: 0;">
                 <div style="margin: 0 0 10px 0; padding: 12px; border: 1px solid rgba(124,58,237,0.22); border-radius: 12px; background: rgba(124,58,237,0.07);">
-                  <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
-                    <div>
+                  <div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 260px;">
                       <div class="muted small" style="margin-bottom: 5px;">Suggested reply</div>
-                      <div style="font-size: 13px; line-height: 1.45;">
+                      <div id="{{ reply_id }}" style="font-size: 13px; line-height: 1.45;">
                         Hi {{ lead.name or "there" }}, thanks for reaching out. I saw you wrote: “{{ lead.request }}”. When is a good time to talk?
                       </div>
                     </div>
 
-                    <div class="muted small" style="white-space: nowrap;">
-                      Ready for WhatsApp follow-up
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                      <button type="button" onclick="copyReply('{{ reply_id }}', this)">Copy reply</button>
+                      <div class="muted small" style="white-space: nowrap;">Ready for WhatsApp follow-up</div>
                     </div>
                   </div>
                 </div>
@@ -325,4 +327,27 @@
       </div>
     </div>
   </div>
+
+  <script>
+    async function copyReply(replyId, button) {
+      const replyElement = document.getElementById(replyId);
+      if (!replyElement) return;
+
+      const text = replyElement.innerText.trim();
+      const originalText = button.innerText;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        button.innerText = "Copied";
+        setTimeout(() => {
+          button.innerText = originalText;
+        }, 1400);
+      } catch (error) {
+        button.innerText = "Copy failed";
+        setTimeout(() => {
+          button.innerText = originalText;
+        }, 1400);
+      }
+    }
+  </script>
 {% endblock %}
