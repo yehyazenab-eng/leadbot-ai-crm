@@ -206,9 +206,7 @@
 
             <tr>
               <td>#{{ lead.id }}</td>
-
               <td class="muted small">{{ lead.created_at }}</td>
-
               <td>{{ lead.name or "" }}</td>
 
               <td class="small">
@@ -238,33 +236,26 @@
                 <span class="badge priority {{ lead_score }}">{{ lead.score or "Low" }}</span>
               </td>
 
-              <td class="small" style="max-width: 220px;">
+              <td class="small" style="max-width: 160px;">
                 {% if lead_stage == "new" and lead_score == "high" %}
                   <span class="badge">Call now</span>
-                  <div class="muted" style="margin-top: 5px;">Hot new lead from {{ lead_source }}.</div>
+                  <div class="muted" style="margin-top: 5px;">Hot lead from {{ lead_source }}.</div>
                 {% elif lead_stage == "new" %}
                   <span class="badge">Follow up</span>
-                  <div class="muted" style="margin-top: 5px;">New lead. Contact before it goes cold.</div>
+                  <div class="muted" style="margin-top: 5px;">Contact before it goes cold.</div>
                 {% elif lead_stage == "contacted" %}
                   <span class="badge">Close next</span>
-                  <div class="muted" style="margin-top: 5px;">Already contacted. Push toward decision.</div>
+                  <div class="muted" style="margin-top: 5px;">Push toward decision.</div>
                 {% elif lead_stage == "won" %}
                   <span class="badge">Won</span>
                   <div class="muted" style="margin-top: 5px;">Closed successfully.</div>
                 {% elif lead_stage == "lost" %}
                   <span class="badge">Review</span>
-                  <div class="muted" style="margin-top: 5px;">Learn why this lead was lost.</div>
+                  <div class="muted" style="margin-top: 5px;">Learn why it was lost.</div>
                 {% else %}
                   <span class="badge">Check</span>
-                  <div class="muted" style="margin-top: 5px;">Review this lead manually.</div>
+                  <div class="muted" style="margin-top: 5px;">Review manually.</div>
                 {% endif %}
-
-                <div style="margin-top: 8px; padding: 8px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: rgba(0,0,0,0.14);">
-                  <div class="muted" style="font-size: 11px; margin-bottom: 4px;">Suggested reply</div>
-                  <div style="font-size: 12px; line-height: 1.35;">
-                    Hi {{ lead.name or "there" }}, thanks for reaching out. I saw you wrote: “{{ lead.request }}”. When is a good time to talk?
-                  </div>
-                </div>
               </td>
 
               <td>
@@ -281,6 +272,25 @@
                   </select>
                   <button class="primary" type="submit">Save</button>
                 </form>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="11" style="padding-top: 0;">
+                <div style="margin: 0 0 10px 0; padding: 12px; border: 1px solid rgba(124,58,237,0.22); border-radius: 12px; background: rgba(124,58,237,0.07);">
+                  <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
+                    <div>
+                      <div class="muted small" style="margin-bottom: 5px;">Suggested reply</div>
+                      <div style="font-size: 13px; line-height: 1.45;">
+                        Hi {{ lead.name or "there" }}, thanks for reaching out. I saw you wrote: “{{ lead.request }}”. When is a good time to talk?
+                      </div>
+                    </div>
+
+                    <div class="muted small" style="white-space: nowrap;">
+                      Ready for WhatsApp follow-up
+                    </div>
+                  </div>
+                </div>
               </td>
             </tr>
           {% endfor %}
