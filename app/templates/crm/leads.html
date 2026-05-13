@@ -238,7 +238,7 @@
                 <span class="badge priority {{ lead_score }}">{{ lead.score or "Low" }}</span>
               </td>
 
-              <td class="small" style="max-width: 180px;">
+              <td class="small" style="max-width: 220px;">
                 {% if lead_stage == "new" and lead_score == "high" %}
                   <span class="badge">Call now</span>
                   <div class="muted" style="margin-top: 5px;">Hot new lead from {{ lead_source }}.</div>
@@ -258,6 +258,13 @@
                   <span class="badge">Check</span>
                   <div class="muted" style="margin-top: 5px;">Review this lead manually.</div>
                 {% endif %}
+
+                <div style="margin-top: 8px; padding: 8px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: rgba(0,0,0,0.14);">
+                  <div class="muted" style="font-size: 11px; margin-bottom: 4px;">Suggested reply</div>
+                  <div style="font-size: 12px; line-height: 1.35;">
+                    Hi {{ lead.name or "there" }}, thanks for reaching out. I saw you wrote: “{{ lead.request }}”. When is a good time to talk?
+                  </div>
+                </div>
               </td>
 
               <td>
