@@ -289,7 +289,16 @@
 
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                       <button type="button" onclick="copyReply('{{ reply_id }}', this)">Copy reply</button>
+
                       <button type="button" onclick="openWhatsApp('{{ lead.phone }}', '{{ reply_id }}')">Open WhatsApp</button>
+
+                      {% if lead.stage != "contacted" and lead.stage != "won" and lead.stage != "lost" %}
+                        <form method="post" action="/crm/leads/{{ lead.id }}/stage" style="margin: 0;">
+                          <input type="hidden" name="stage" value="contacted" />
+                          <button type="submit" class="primary">Mark contacted</button>
+                        </form>
+                      {% endif %}
+
                       <div class="muted small" style="white-space: nowrap;">Prefilled WhatsApp reply</div>
                     </div>
                   </div>
