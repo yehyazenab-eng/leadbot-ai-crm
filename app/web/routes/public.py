@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.crud.leads import create_lead
@@ -48,7 +49,20 @@ def find_recent_duplicate_lead(
         .limit(1)
     )
 
-    return db.execute(stmt).scalars().first()
+    try:
+        return db.execute(stmt).scalars().first()
+    except OperationalError as error:
+        print(f"[duplicate_check_failed_operational] {error}")
+        db.rollback()
+        return None
+    except SQLAlchemyError as error:
+        print(f"[duplicate_check_failed_sqlalchemy] {error}")
+        db.rollback()
+        return None
+    except Exception as error:
+        print(f"[duplicate_check_failed_unknown] {error}")
+        db.rollback()
+        return None
 
 
 @router.get("/lead", response_class=HTMLResponse)
@@ -86,16 +100,25 @@ def submit_lead(
     summary = generate_lead_summary(name=clean_name, phone=clean_phone, request=clean_request)
     score = score_lead(request=clean_request)
 
-    lead = create_lead(
-        db,
-        name=clean_name,
-        phone=clean_phone,
-        email="",
-        request=clean_request,
-        summary=summary,
-        score=score,
-        source=clean_source,
-    )
+    try:
+        lead = create_lead(
+            db,
+            name=clean_name,
+            phone=clean_phone,
+            email="",
+            request=clean_request,
+            summary=summary,
+            score=score,
+            source=clean_source,
+        )
+    except OperationalError as error:
+        print(f"[create_lead_failed_operational] {error}")
+        db.rollback()
+        raise
+    except SQLAlchemyError as error:
+        print(f"[create_lead_failed_sqlalchemy] {error}")
+        db.rollback()
+        raise
 
     notify_lead_event("created", lead.id, lead.name, lead.phone, lead.request)
     return RedirectResponse(url=f"/lead/thanks?lead_id={lead.id}", status_code=303)
